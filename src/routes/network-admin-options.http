@@ -1,0 +1,66 @@
+### Get all options
+
+// @no-log
+GET http://{{host}}/wp-json/yoast/v1/network-admin-options
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+
+### Get a single option
+
+// @no-log
+GET http://{{host}}/wp-json/yoast/v1/network-admin-options?facebook_site
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+
+### Get multiple options
+
+// @no-log
+GET http://{{host}}/wp-json/yoast/v1/network-admin-options?facebook_site&twitter_site
+Authorization: Basic {{username}} {{password}}
+Accept: application/json
+
+### Set single option
+
+// @no-log
+POST http://{{host}}/wp-json/yoast/v1/network-admin-options
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+	"facebook_site": "https://yoast.com"
+}
+
+### Set failed single option
+
+// @no-log
+POST http://{{host}}/wp-json/yoast/v1/network-admin-options
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+	"facebook_site": "httpss://yoast.com"
+}
+
+### Set multiple options
+
+// @no-log
+POST http://{{host}}/wp-json/yoast/v1/network-admin-options
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+	"facebook_site": "https://yoast.com",
+	"twitter_site": "yoast"
+}
+
+### Set failed multiple options
+
+// @no-log
+POST http://{{host}}/wp-json/yoast/v1/network-admin-options
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+	"facebook_site": "httpss://yoast.com",
+	"twitter_site": "yoast!!"
+}
