@@ -2,15 +2,26 @@
 
 namespace Yoast\WP\SEO\Integrations;
 
+use Yoast\WP\SEO\Conditionals\No_Conditionals;
 use Yoast\WP\SEO\Helpers\Capability_Helper;
 use Yoast\WP\SEO\Helpers\Options_Helper;
 use Yoast\WP\SEO\Helpers\Site_Helper;
+use Yoast\WP\SEO\Services\Options\Network_Admin_Options_Service;
 use Yoast_Network_Settings_API;
 
 /**
  * Adds hooks for the options service.
  */
 class Options_Integration implements Integration_Interface {
+
+	use No_Conditionals;
+
+	/**
+	 * Holds the network admin options service instance.
+	 *
+	 * @var Network_Admin_Options_Service
+	 */
+	protected $network_admin_options_service;
 
 	/**
 	 * Holds the options helper instance.
@@ -38,19 +49,11 @@ class Options_Integration implements Integration_Interface {
 	 *
 	 * @param Options_Helper $options_helper The options helper.
 	 */
-	public function __construct( Options_Helper $options_helper, Capability_Helper $capability_helper, Site_Helper $site_helper ) {
-		$this->options_helper    = $options_helper;
-		$this->capability_helper = $capability_helper;
-		$this->site_helper       = $site_helper;
-	}
-
-	/**
-	 * Returns the conditionals based in which this loadable should be active.
-	 *
-	 * @return array The array of conditionals.
-	 */
-	public static function get_conditionals() {
-		return [];
+	public function __construct( Network_Admin_Options_Service $network_admin_options_service, Options_Helper $options_helper, Capability_Helper $capability_helper, Site_Helper $site_helper ) {
+		$this->network_admin_options_service = $network_admin_options_service;
+		$this->options_helper                = $options_helper;
+		$this->capability_helper             = $capability_helper;
+		$this->site_helper                   = $site_helper;
 	}
 
 	/**
@@ -82,18 +85,17 @@ class Options_Integration implements Integration_Interface {
 			return;
 		}
 
-		// TODO: replace this with $this->site_helper->is_multisite() after P1-1156 is merged.
-		if ( \is_multisite() ) {
+		if ( $this->site_helper->is_multisite() ) {
 			$network_settings_api = Yoast_Network_Settings_API::get();
-			if ( $network_settings_api->meets_requirements() ) {
-				// TODO: replace hardcoded string with network_admin_options_service->option_name.
-				$network_settings_api->register_setting( 'wpseo_network_admin_options', 'wpseo_network_admin_options' );
-			}
+			$network_settings_api->register_setting(
+				$this->network_admin_options_service->option_name,
+				$this->network_admin_options_service->option_name
+			);
 		}
 
 		\register_setting(
-			'wpseo_options',
-			'wpseo_options',
+			$this->options_helper->get_options_service()->option_name,
+			$this->options_helper->get_options_service()->option_name,
 			[
 				'type'              => 'array',
 				'sanitize_callback' => [ $this, 'sanitize_options' ],
